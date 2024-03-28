@@ -5,7 +5,7 @@ namespace MLAB\PHPITest\Assertions;
 use DateTime;
 use PHPUnit\Framework\Assert;
 use MLAB\PHPITest\Constraint\StatusCode;
-USE MLAB\PHPITest\Service\HttpRequest;
+use MLAB\PHPITest\Service\HttpRequest;
 
 class AssertHttpResponse extends CustomAssert
 {
@@ -591,6 +591,21 @@ class AssertHttpResponse extends CustomAssert
     }
 
     /**
+     * Asserts that the JSON response from the specified file path is equal to the expected JSON response.
+     *
+     * @param string $filePath The file path of the JSON response to compare.
+     * @param array $keysToRemove The keys to remove from the JSON response.
+     * @return self
+     */
+    public function assertJsonIsEqualJsonFile(string $filePath, array $keysToRemove = [])
+    {
+        $responseData = remove_keys_from_object(json_decode($this->getContent()), $keysToRemove);
+        $this->assertJsonStringEqualsJsonFile($filePath, json_encode($responseData));
+
+        return $this;
+    }
+
+    /**
      * Validate and return the decoded response JSON.
      *
      * @return self
@@ -611,7 +626,9 @@ class AssertHttpResponse extends CustomAssert
     }
 
     /**
-     * get request content
+     * Get the content of the HTTP response.
+     *
+     * @return string The content of the HTTP response.
      */
     public function getContent()
     {
@@ -629,8 +646,11 @@ class AssertHttpResponse extends CustomAssert
         return $this->decodeResponseJson()->json($key);
     }
 
+
     /**
-     * check if is redirect
+     * Checks if the HTTP response is a redirect.
+     *
+     * @return bool Returns true if the response is a redirect, false otherwise.
      */
     private function isRedirect(): bool
     {

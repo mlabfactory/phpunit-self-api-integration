@@ -50,3 +50,31 @@ if (!function_exists('data_get')) {
         return $target;
     }
 }
+
+if (!function_exists('remove_keys_from_object')) {
+    /**
+     * Remove a key from an object recursively.
+     *
+     * @param  object  $object
+     * @param  array  $keys
+     * @return object
+     */
+    function remove_keys_from_object(object $object, array $keys)
+    {
+        if (is_object($object)) {
+            foreach ($object as $property => $value) {
+                if (is_object($value)) {
+                    $object->{$property} = remove_keys_from_object($value, $keys);
+                } else {
+                    foreach ($keys as $key) {
+                        if ($property === $key) {
+                            unset($object->{$property});
+                        }
+                    }
+                }
+            }
+        }
+
+        return $object;
+    }
+}

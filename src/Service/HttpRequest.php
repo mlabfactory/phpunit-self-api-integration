@@ -135,6 +135,20 @@ class HttpRequest
     }
 
     /**
+     * Sends an HTTP request.
+     *
+     * @param string $method The HTTP method (e.g., GET, POST, PUT, DELETE).
+     * @param string $uri The URI to send the request to.
+     * @param array $data The data to send with the request (optional).
+     *
+     * @return AssertHttpResponse The HTTP response object.
+     */
+    public function request(string $method, string $uri, array $data = []): AssertHttpResponse
+    {
+        return $this->invoke($method, $uri, $data);
+    }
+
+    /**
      * Get the value of statusCode
      *
      * @return int
