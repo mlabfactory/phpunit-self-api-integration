@@ -48,8 +48,14 @@ class HttpRequest
                 $this->options
             );
 
+
+            $headers = $this->headers;
+            $headers['User-Agent'] = 'Unit Test';
+            
             $this->response = $client->request($method, self::DOMAIN_URL . $uri, [
                 'body' => json_encode($data),
+                'cookies' => $jar,
+                'headers' => $headers
             ]);
 
             $this->statusCode = $this->response->getStatusCode();
@@ -57,7 +63,7 @@ class HttpRequest
 
             return new AssertHttpResponse($this);
         } catch (\Throwable $e) {
-
+            $this->response = new \GuzzleHttp\Psr7\Response(); //empty response
             $this->statusCode = $e->getCode();
             return new AssertHttpResponse($this);
         }
