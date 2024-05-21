@@ -16,6 +16,7 @@ class HttpRequest
     private ResponseInterface $response;
     private int $statusCode;
     private CookieJar $cookies;
+    private string $domain;
 
     private array $options; //Guzzle HTTP Request options https://docs.guzzlephp.org/en/stable/quickstart.html#making-a-request
     const DOMAIN_URL = "http://localhost";
@@ -25,10 +26,11 @@ class HttpRequest
      *
      * @param array $options An array of options for the HttpRequest.
      */
-    public function __construct($options = [])
+    public function __construct($options = [], string $domain = self::DOMAIN_URL)
     {
         $this->options = $options;
         $this->setCookies([]);
+        $this->setDomain($domain);
     }
 
     /**
@@ -48,7 +50,7 @@ class HttpRequest
                 $this->options
             );
 
-            $this->response = $client->request($method, self::DOMAIN_URL . $uri, [
+            $this->response = $client->request($method, $this->domain . $uri, [
                 'body' => json_encode($data),
             ]);
 
@@ -224,6 +226,21 @@ class HttpRequest
             $cookies,
             self::DOMAIN_URL
         );
+
+        return $this;
+    }
+
+
+    /**
+     * Set the value of domain
+     *
+     * @param string $domain
+     *
+     * @return self
+     */
+    public function setDomain(string $domain): self
+    {
+        $this->domain = $domain;
 
         return $this;
     }
