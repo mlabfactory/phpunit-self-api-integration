@@ -78,3 +78,25 @@ if (!function_exists('remove_keys_from_object')) {
         return $object;
     }
 }
+
+if(!function_exists('extractIndices')) {
+    /**
+     * Extract indices from a multidimensional array.
+     *
+     * @param array $data
+     * @return array
+     */
+    function extractIndices(array $data)
+    {
+        $indices = [];
+        foreach ($data as $key => $value) {
+            if (is_array($value)) {
+                $indices[$key] = extractIndices($value);
+            } else {
+                $indices[] = $key;
+            }
+        }
+        
+        return $indices;
+    }
+}

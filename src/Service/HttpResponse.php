@@ -1,22 +1,22 @@
 <?php
 
-namespace MLAB\PHPITest\Assertions;
+namespace MLAB\PHPITest\Service;
 
 use DateTime;
 use PHPUnit\Framework\Assert;
-use MLAB\PHPITest\Constraint\StatusCode;
 use MLAB\PHPITest\Service\HttpRequest;
+use MLAB\PHPITest\Assertions\Assertions;
+use MLAB\PHPITest\Constraint\StatusCode;
 
-class AssertHttpResponse extends CustomAssert
+class HttpResponse extends Assertions
 {
 
     use StatusCode;
-    public HttpRequest $request;
+    public readonly HttpRequest $request;
     protected mixed $decoded;
 
     public function __construct(HttpRequest $request, mixed $decoded = null)
     {
-        parent::__construct($decoded);
         $this->request = $request;
     }
 
@@ -429,203 +429,6 @@ class AssertHttpResponse extends CustomAssert
     }
 
     /**
-     * Assert that the expected value and type exists at the given path in the response.
-     *
-     * @param  string  $path
-     * @param  mixed  $expect
-     * @return $this
-     */
-    public function assertJsonPath($path, $expect)
-    {
-        $this->decodeResponseJson()->assertPath($path, $expect);
-
-        return $this;
-    }
-
-    /**
-     * Assert that the given path in the response contains all of the expected values without looking at the order.
-     *
-     * @param  string  $path
-     * @param  array  $expect
-     * @return $this
-     */
-    public function assertJsonPathCanonicalizing($path, array $expect)
-    {
-        $this->decodeResponseJson()->assertPathCanonicalizing($path, $expect);
-
-        return $this;
-    }
-
-    /**
-     * Assert that the response has the exact given JSON.
-     *
-     * @param  array  $data
-     * @return $this
-     */
-    public function assertExactJson(array $data)
-    {
-        $this->decodeResponseJson()->assertExact($data);
-
-        return $this;
-    }
-
-    /**
-     * Assert that the response has the similar JSON as given.
-     *
-     * @param  array  $data
-     * @return $this
-     */
-    public function assertSimilarJson(array $data)
-    {
-        $this->decodeResponseJson()->assertSimilar($data);
-
-        return $this;
-    }
-
-    /**
-     * Assert that the response contains the given JSON fragment.
-     *
-     * @param  array  $data
-     * @return $this
-     */
-    public function assertJsonFragment(array $data)
-    {
-        $this->decodeResponseJson()->assertFragment($data);
-
-        return $this;
-    }
-
-    /**
-     * Assert that the response does not contain the given JSON fragment.
-     *
-     * @param  array  $data
-     * @param  bool  $exact
-     * @return $this
-     */
-    public function assertJsonMissing(array $data, $exact = false)
-    {
-        $this->decodeResponseJson()->assertMissing($data, $exact);
-
-        return $this;
-    }
-
-    /**
-     * Assert that the response does not contain the exact JSON fragment.
-     *
-     * @param  array  $data
-     * @return $this
-     */
-    public function assertJsonMissingExact(array $data)
-    {
-        $this->decodeResponseJson()->assertMissingExact($data);
-
-        return $this;
-    }
-
-    /**
-     * Assert that the response does not contain the given path.
-     *
-     * @param  string  $path
-     * @return $this
-     */
-    public function assertJsonMissingPath(string $path)
-    {
-        $this->decodeResponseJson()->assertMissingPath($path);
-
-        return $this;
-    }
-
-    /**
-     * Assert that the response has a given JSON structure.
-     *
-     * @param  array|null  $structure
-     * @param  array|null  $responseData
-     * @return $this
-     */
-    public function assertJsonStructure(array $structure = null, $responseData = null)
-    {
-        $this->decodeResponseJson()->assertStructure($structure, $responseData);
-        return $this;
-    }
-
-    /**
-     * Assert that the given key is a JSON array.
-     *
-     * @param  string|null  $key
-     * @return $this
-     */
-    public function assertJsonIsArray($key = null)
-    {
-        $data = $this->json($key);
-
-        $encodedData = json_encode($data);
-
-        $this->assertTrue(
-            is_array($data)
-                && str_starts_with($encodedData, '[')
-                && str_ends_with($encodedData, ']')
-        );
-
-        return $this;
-    }
-
-    /**
-     * Assert that the given key is a JSON object.
-     *
-     * @param  string|null  $key
-     * @return $this
-     */
-    public function assertJsonIsObject($key = null)
-    {
-        $data = $this->json($key);
-
-        $encodedData = json_encode($data);
-
-        $this->assertTrue(
-            is_array($data)
-                && str_starts_with($encodedData, '{')
-                && str_ends_with($encodedData, '}')
-        );
-
-        return $this;
-    }
-
-    /**
-     * Asserts that the JSON response from the specified file path is equal to the expected JSON response.
-     *
-     * @param string $filePath The file path of the JSON response to compare.
-     * @param array $keysToRemove The keys to remove from the JSON response.
-     * @return self
-     */
-    public function assertJsonIsEqualJsonFile(string $filePath, array $keysToRemove = [])
-    {
-        $responseData = remove_keys_from_object(json_decode($this->getContent()), $keysToRemove);
-        $this->assertJsonStringEqualsJsonFile($filePath, json_encode($responseData));
-
-        return $this;
-    }
-
-    /**
-     * Validate and return the decoded response JSON.
-     *
-     * @return self
-     *
-     * @throws \Throwable
-     */
-    public function decodeResponseJson(): self
-    {
-        $decodedResponse = json_decode($this->getContent());
-
-        if (is_null($decodedResponse) || $decodedResponse === false) {
-            $this->fail('Invalid JSON was returned from the route.');
-        }
-
-        $this->decoded = (array) $decodedResponse;
-
-        return $this;
-    }
-
-    /**
      * Get the content of the HTTP response.
      *
      * @return string The content of the HTTP response.
@@ -634,18 +437,6 @@ class AssertHttpResponse extends CustomAssert
     {
         return $this->request->getContent();
     }
-
-    /**
-     * Validate and return the decoded response JSON.
-     *
-     * @param  string|null  $key
-     * @return mixed
-     */
-    public function json($key = null)
-    {
-        return $this->decodeResponseJson()->json($key);
-    }
-
 
     /**
      * Checks if the HTTP response is a redirect.
