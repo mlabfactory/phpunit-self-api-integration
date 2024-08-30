@@ -187,8 +187,28 @@ final class JsonAssert {
      */
     public function assertJsonIsEqualJsonFile(string $filePath, array $keysToRemove = [])
     {
-        $responseData = remove_keys_from_object($this->json, $keysToRemove);
+        $responseData = remove_keys_from_object(array_to_object($this->json->data), $keysToRemove);
         $this->assertions->assertJsonStringEqualsJsonFile($filePath, json_encode($responseData));
+
+        return $this;
+    }
+
+    /**
+     * Asserts that the given JSON object is equal to the expected JSON object.
+     *
+     * @param object|array $json The JSON object to compare.
+     * @param array $keysToRemove An optional array of keys to remove from the JSON object before comparison.
+     * @return void
+     */
+    public function assertJsonIsEqualToJson(object|array $json, array $keysToRemove = [])
+    {
+        if(is_array($json)) {
+            $json = array_to_object($json);
+        }
+
+        $responseData = remove_keys_from_object($json, $keysToRemove);
+        $jsonData = remove_keys_from_object(array_to_object($this->json->data), $keysToRemove);
+        $this->assertions->assertJsonStringEqualsJsonString(json_encode($responseData), json_encode($jsonData));
 
         return $this;
     }
