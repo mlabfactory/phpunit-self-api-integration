@@ -78,3 +78,47 @@ if (!function_exists('remove_keys_from_object')) {
         return $object;
     }
 }
+
+if(!function_exists('extractIndices')) {
+    /**
+     * Extract indices from a multidimensional array.
+     *
+     * @param array $data
+     * @return array
+     */
+    function extractIndices(array $data)
+    {
+        $indices = [];
+        foreach ($data as $key => $value) {
+            if (is_array($value)) {
+                $indices[$key] = extractIndices($value);
+            } else {
+                $indices[] = $key;
+            }
+        }
+        
+        return $indices;
+    }
+}
+
+if(!function_exists('array_to_object')) {
+    /**
+     * Convert an array to an object.
+     *
+     * @param $array
+     * @return object
+     */
+    function array_to_object($array)
+    {
+        $object = new stdClass();
+        foreach ($array as $key => $value) {
+            if (is_array($value)) {
+                $object->{$key} = array_to_object($value);
+            } else {
+                $object->{$key} = $value;
+            }
+        }
+        
+        return $object;
+    }
+}

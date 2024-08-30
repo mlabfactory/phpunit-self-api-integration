@@ -1,18 +1,24 @@
 <?php
+declare(strict_types=1);
 
 namespace MLAB\PHPITest\Assertions;
 
 use PHPUnit\Framework\Assert;
 use MLAB\PHPITest\Constraint\Str;
 use MLAB\PHPITest\Constraint\Arr;
+use stdClass;
 
-class CustomAssert extends Assert {
+class Assertions extends Assert {
 
     protected mixed $decoded;
 
-    public function __construct($decoded)
+    public function __construct(stdClass|array $decoded)
     {
-        $this->decoded = (array) $decoded;
+        if(is_array($decoded)) {
+            $this->decoded = $decoded;
+        } else {
+            $this->decoded = (array) $decoded;
+        }
     }
 
     /**

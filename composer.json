@@ -3,7 +3,6 @@
     "description": "PHPUnit extension designed for conducting integration tests on self-contained APIs within PHP applications. This extension facilitates seamless testing of API endpoints within the same system, ensuring smooth integration and functionality.",
     "type": "library",
     "license": "GPL-3.0 license",
-    "version": "1.0",
     "autoload": {
         "psr-4": {
             "MLAB\\PHPITest\\": "src/"

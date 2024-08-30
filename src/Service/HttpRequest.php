@@ -7,7 +7,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Cookie\CookieJar;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
-USE MLAB\PHPITest\Assertions\AssertHttpResponse;
+use MLAB\PHPITest\Assertions\HttpAssert;
 
 class HttpRequest
 {
@@ -16,6 +16,7 @@ class HttpRequest
     private ResponseInterface $response;
     private int $statusCode;
     private CookieJar $cookies;
+    private string $testDomain;
 
     private array $options; //Guzzle HTTP Request options https://docs.guzzlephp.org/en/stable/quickstart.html#making-a-request
     const DOMAIN_URL = "http://localhost";
@@ -25,9 +26,10 @@ class HttpRequest
      *
      * @param array $options An array of options for the HttpRequest.
      */
-    public function __construct($options = [])
+    public function __construct($options = [], string $testDomain = self::DOMAIN_URL)
     {
         $this->options = $options;
+        $this->testDomain = $testDomain;
         $this->setCookies([]);
     }
 
@@ -37,9 +39,9 @@ class HttpRequest
      * @param string $uri
      * @param array $data
      * 
-     * @return AssertHttpResponse
+     * @return HttpAssert
      */
-    private function invoke(string $method, string $uri, array $data = []): AssertHttpResponse
+    private function invoke(string $method, string $uri, array $data = []): HttpAssert
     {
         $jar = $this->cookies;
 
@@ -48,11 +50,8 @@ class HttpRequest
                 $this->options
             );
 
+            $this->response = $client->request($method, $this->testDomain . $uri, [
 
-            $headers = $this->headers;
-            $headers['User-Agent'] = 'Unit Test';
-            
-            $this->response = $client->request($method, self::DOMAIN_URL . $uri, [
                 'body' => json_encode($data),
                 'cookies' => $jar,
                 'headers' => $headers
@@ -61,11 +60,11 @@ class HttpRequest
             $this->statusCode = $this->response->getStatusCode();
             $this->headers = $this->response->getHeaders();
 
-            return new AssertHttpResponse($this);
+            return new HttpAssert(new HttpResponse($this));
         } catch (\Throwable $e) {
             $this->response = new \GuzzleHttp\Psr7\Response(); //empty response
             $this->statusCode = $e->getCode();
-            return new AssertHttpResponse($this);
+            return new HttpAssert(new HttpResponse($this));
         }
     }
 
@@ -75,9 +74,9 @@ class HttpRequest
      * send GET request
      * @param string $uri
      * 
-     * @return AssertHttpResponse
+     * @return HttpAssert
      */
-    public function get(string $uri): AssertHttpResponse
+    public function get(string $uri): HttpAssert
     {
         return $this->invoke("GET", $uri, []);
     }
@@ -87,9 +86,9 @@ class HttpRequest
      * @param string $uri
      * @param array $data
      * 
-     * @return AssertHttpResponse
+     * @return HttpAssert
      */
-    public function post(string $uri, array $data): AssertHttpResponse
+    public function post(string $uri, array $data): HttpAssert
     {
         return $this->invoke("POST", $uri, $data);
     }
@@ -99,9 +98,9 @@ class HttpRequest
      * @param string $uri
      * @param array $data to send
      * 
-     * @return AssertHttpResponse
+     * @return HttpAssert
      */
-    public function put(string $uri, array $data): AssertHttpResponse
+    public function put(string $uri, array $data): HttpAssert
     {
         return $this->invoke("PUT", $uri, $data);
     }
@@ -110,9 +109,9 @@ class HttpRequest
      * send DELETE request
      * @param string $uri
      * 
-     * @return AssertHttpResponse
+     * @return HttpAssert
      */
-    public function delete(string $uri): AssertHttpResponse
+    public function delete(string $uri): HttpAssert
     {
         return $this->invoke("DELETE", $uri, []);
     }
@@ -121,9 +120,9 @@ class HttpRequest
      * send OPTION request
      * @param string $uri
      * 
-     * @return AssertHttpResponse
+     * @return HttpAssert
      */
-    public function option(string $uri): AssertHttpResponse
+    public function option(string $uri): HttpAssert
     {
         return $this->invoke("OPTION", $uri, []);
     }
@@ -133,9 +132,9 @@ class HttpRequest
      * @param string $uri
      * @param array $data
      * 
-     * @return AssertHttpResponse
+     * @return HttpAssert
      */
-    public function patch(string $uri, array $data): AssertHttpResponse
+    public function patch(string $uri, array $data): HttpAssert
     {
         return $this->invoke("PATCH", $uri, $data);
     }
@@ -147,9 +146,9 @@ class HttpRequest
      * @param string $uri The URI to send the request to.
      * @param array $data The data to send with the request (optional).
      *
-     * @return AssertHttpResponse The HTTP response object.
+     * @return HttpAssert The HTTP response object.
      */
-    public function request(string $method, string $uri, array $data = []): AssertHttpResponse
+    public function request(string $method, string $uri, array $data = []): HttpAssert
     {
         return $this->invoke($method, $uri, $data);
     }
