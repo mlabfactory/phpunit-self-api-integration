@@ -7,9 +7,9 @@ use JsonException;
 
 final class Json {
 
-    public readonly \stdClass $data;
+    public readonly \stdClass|array $data;
 
-    public function __construct(\stdClass $data)
+    public function __construct(\stdClass|array $data)
     {
         $this->data = $data;
     }

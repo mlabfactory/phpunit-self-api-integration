@@ -100,3 +100,25 @@ if(!function_exists('extractIndices')) {
         return $indices;
     }
 }
+
+if(!function_exists('array_to_object')) {
+    /**
+     * Convert an array to an object.
+     *
+     * @param $array
+     * @return object
+     */
+    function array_to_object($array)
+    {
+        $object = new stdClass();
+        foreach ($array as $key => $value) {
+            if (is_array($value)) {
+                $object->{$key} = array_to_object($value);
+            } else {
+                $object->{$key} = $value;
+            }
+        }
+        
+        return $object;
+    }
+}
