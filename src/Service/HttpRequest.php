@@ -51,7 +51,10 @@ class HttpRequest
             );
 
             $this->response = $client->request($method, $this->testDomain . $uri, [
+
                 'body' => json_encode($data),
+                'cookies' => $jar,
+                'headers' => $headers
             ]);
 
             $this->statusCode = $this->response->getStatusCode();
@@ -59,7 +62,7 @@ class HttpRequest
 
             return new HttpAssert(new HttpResponse($this));
         } catch (\Throwable $e) {
-
+            $this->response = new \GuzzleHttp\Psr7\Response(); //empty response
             $this->statusCode = $e->getCode();
             return new HttpAssert(new HttpResponse($this));
         }
